@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    #container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    #messages {
+      list-style-type: none;
+      padding: 0;
+    }
+    #messages li {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+    }
+    .message-info {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .message-text {
+      align-self: flex-end;
+    }
+    form {
+      display: flex;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      border-radius: 3px;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="name" type="text" placeholder="Your Name" autocomplete="off" required />
+      <input id="m" type="text" placeholder="Enter your message..." autocomplete="off" required />
+      <button>Send</button>
+    </form>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    // Prevent changing name after submitting
+    let nameSubmitted = false;
+    document.getElementById('name').addEventListener('change', () => {
+      if (nameSubmitted) {
+        document.getElementById('name').setAttribute('disabled', true);
+      }
+    });
+
+    // Listen for incoming messages
+    socket.on('chat message', (data) => {
+      const item = document.createElement('li');
+      const messageInfo = document.createElement('div');
+      messageInfo.classList.add('message-info');
+      messageInfo.textContent = data.name;
+      const messageText = document.createElement('div');
+      messageText.classList.add('message-text');
+      messageText.textContent = data.message;
+      item.appendChild(messageInfo);
+      item.appendChild(messageText);
+      document.getElementById('messages').appendChild(item);
+    });
+
+    // Send message on form submit
+    document.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById('name');
+      const messageInput = document.getElementById('m');
+      socket.emit('chat message', { name: nameInput.value, message: messageInput.value });
+      messageInput.value = '';
+      if (!nameSubmitted) {
+        nameSubmitted = true;
+        nameInput.setAttribute('disabled', true);
+      }
+      return false;
+    });
+  </script>
+</body>
+</html>
