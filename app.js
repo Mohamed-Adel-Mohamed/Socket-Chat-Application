@@ -1,6 +1,7 @@
 const express = require('express');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;
+const path = require('path');
 
 if (cluster.isMaster) {
   // Fork workers.
@@ -15,6 +16,11 @@ if (cluster.isMaster) {
   // Serve HTML file
   app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
+  });
+
+  // Serve Socket.IO client library
+  app.get('/socket.io/socket.io.js', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'node_modules', 'socket.io-client', 'dist', 'socket.io.js'));
   });
 
   // Socket.io logic
