@@ -1,0 +1,7 @@
+1. download node js
+2. download express 'terminal'->
+npm install express
+or
+npm i express
+3. RUN 'terminal' ->
+node app.js
